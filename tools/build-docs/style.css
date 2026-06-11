@@ -1,0 +1,159 @@
+/* Dark theme — Sarabun/Noto for Thai, JetBrains Mono for code.
+   Tokens imported from theme.js by build.mjs and inlined into <style>. */
+:root {
+  --bg: #0f1115;
+  --bg-elev: #161922;
+  --bg-code: #0b0d12;
+  --border: #262a35;
+  --text: #e6e8ee;
+  --text-dim: #9aa3b2;
+  --accent: #7aa2f7;
+  --accent-soft: #1f2a44;
+  --danger: #f7768e;
+  --ok: #9ece6a;
+  --warn: #e0af68;
+  --link: #7dcfff;
+  --radius: 10px;
+  --max-w: 820px;
+  --sans: "Sarabun", "Noto Sans Thai", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Layout */
+.shell { max-width: var(--max-w); margin: 0 auto; padding: 48px 24px 96px; }
+header.site {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+header.site h1 { margin: 0; font-size: 22px; font-weight: 600; }
+header.site .crumb { color: var(--text-dim); font-size: 14px; }
+header.site .crumb a { color: var(--text-dim); }
+
+/* Typography */
+h1, h2, h3, h4 { color: var(--text); line-height: 1.3; }
+h1 { font-size: 32px; margin: 0 0 8px; }
+h2 { font-size: 24px; margin: 40px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+h3 { font-size: 19px; margin: 28px 0 8px; color: var(--accent); }
+p { margin: 12px 0; }
+
+ul, ol { padding-left: 24px; }
+li { margin: 6px 0; }
+
+blockquote {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  margin: 20px 0;
+  padding: 12px 18px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text);
+  font-style: normal;
+}
+blockquote p { margin: 0; }
+
+/* Code */
+code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: var(--warn);
+}
+pre {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  overflow-x: auto;
+  line-height: 1.5;
+  font-size: 14.5px;
+  margin: 16px 0;
+}
+pre code { background: none; border: 0; padding: 0; color: var(--text); }
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 15px;
+}
+th, td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+th { color: var(--text-dim); font-weight: 600; background: var(--bg-elev); }
+tr:hover td { background: var(--bg-elev); }
+
+/* Frontmatter meta box */
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0 20px;
+}
+.meta .tag {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* Index — TOC */
+.toc { list-style: none; padding: 0; margin: 0; }
+.toc li {
+  border: 1px solid var(--border);
+  background: var(--bg-elev);
+  border-radius: var(--radius);
+  margin: 10px 0;
+  padding: 14px 18px;
+  transition: border-color 0.15s;
+}
+.toc li:hover { border-color: var(--accent); }
+.toc a { color: var(--text); font-weight: 600; }
+.toc .summary { color: var(--text-dim); font-size: 14px; margin-top: 4px; display: block; font-weight: 400; }
+
+/* Footer */
+footer.site {
+  margin-top: 64px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Utility */
+hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+.muted { color: var(--text-dim); }

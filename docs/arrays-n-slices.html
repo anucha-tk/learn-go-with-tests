@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arrays &amp; Slices — เรื่องของกล่องใส่ของ — เรียน Go ด้วยการเขียนเทสต์</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="./_assets/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="site">
+      <h1><a href="./index.html" style="color:var(--text)">เรียน Go ด้วยการเขียนเทสต์</a></h1>
+      <nav class="crumb"><a href="./index.html">← กลับหน้าหลัก</a> · Arrays &amp; Slices — เรื่องของกล่องใส่ของ</nav>
+    </header>
+    <main>
+      
+    <h1>Arrays &amp; Slices — เรื่องของกล่องใส่ของ</h1>
+    <div class="meta"><span class="tag">fundamental</span><span class="tag">types</span><span class="tag">collections</span></div>
+    <h1>Arrays &amp; Slices — เรื่องของกล่องใส่ของ</h1>
+<blockquote>
+<p>สมมติคุณเพิ่งเขียนฟังก์ชันแรกเสร็จ แล้วอยากให้มันรับตัวเลขได้ &quot;หลายๆ ตัว&quot; — Go มีคำตอบสองคำที่หน้าตาคล้ายกัน แต่ความเป็นอยู่ต่างกันสุดขั้ว</p>
+</blockquote>
+<h2>เรื่องของเรา</h2>
+<p>เราจะเขียนฟังก์ชัน <code>Sum</code> รับตัวเลขหลายตัว คืนผลรวม. ฟังดูง่าย — แต่ระหว่างทางจะเจอคำถามที่ต้องตอบ:</p>
+<ul>
+<li>ใส่ข้อมูลกี่ตัวดี? ถ้ามี 3 ตัวบ้าง 7 ตัวบ้าง?</li>
+<li>ถ้ารับมาเป็นชุดใหญ่ๆ ฟังก์ชันเดียวจะรับได้หมดไหม?</li>
+<li>ถ้าอยาก &quot;รวมทั้งชุด&quot; และ &quot;รวมแค่ท้าย&quot; จะ reuse โค้ดเดิมได้มั้ย?</li>
+</ul>
+<p>คำตอบของ Go อยู่ที่ความแตกต่างระหว่าง <strong>Array</strong> กับ <strong>Slice</strong>.</p>
+<h2>ปัญหาแรกที่เจอ — Array กล่องที่เปิดขนาดไม่ได้</h2>
+<p>Array ใน Go มี &quot;ความจุตายตัว&quot;. ตอนประกาศต้องบอกว่าจะเก็บกี่ช่อง:</p>
+<pre><code class="language-go">nums := [5]int{1, 2, 3, 4, 5}  // เก็บได้แค่ 5</code></pre>
+<p>อยากเก็บ 4 ตัว? เปลี่ยนเป็น <code>[4]int</code> แล้วก็ต้องเปลี่ยน signature ของ <code>Sum</code> ตาม. อยากเก็บ 100 ตัว? ก็ต้องเปลี่ยนอีก. แย่กว่านั้น — array ขนาดต่างกันถือเป็น <strong>type คนละตัว</strong> ใน Go:</p>
+<pre><code class="language-go">var a [3]int
+var b [4]int
+// a = b  // ❌ compile error: cannot use b (type [4]int) as type [3]int</code></pre>
+<p>ถ้าเราเขียน <code>Sum(nums [5]int) int</code> วันนึงต้องรับ 6 ตัว ก็ต้องเขียนฟังก์ชันใหม่. ไม่ scale.</p>
+<h2>ก่อนแก้ — แบบ naive (array)</h2>
+<pre><code class="language-go">package arraysnslices
+
+func Sum(numbers [5]int) int {
+	sum := 0
+	for _, n := range numbers {
+		sum += n
+	}
+	return sum
+}</code></pre>
+<p>ทดสอบ:</p>
+<pre><code class="language-go">package arraysnslices
+
+import "testing"
+
+func TestSum(t *testing.T) {
+	numbers := [5]int{1, 2, 3, 4, 5}
+
+	got := Sum(numbers)
+	want := 15
+
+	if got != want {
+		t.Errorf("got %d want %d given, %v", got, want, numbers)
+	}
+}</code></pre>
+<p>ผ่าน. แต่พอเปลี่ยน input เป็น <code>[6]int</code> ก็พังทันที.</p>
+<h2>หลังแก้ — แบบ idiomatic (slice)</h2>
+<pre><code class="language-go">package arraysnslices
+
+func Sum(nums []int) int {
+	sum := 0
+	for _, n := range nums {
+		sum += n
+	}
+	return sum
+}</code></pre>
+<pre><code class="language-go">package arraysnslices
+
+import "testing"
+
+func TestSum(t *testing.T) {
+	t.Run("collection of 5 numbers", func(t *testing.T) {
+		numbers := []int{1, 2, 3, 4, 5}
+
+		got := Sum(numbers)
+		want := 15
+
+		if got != want {
+			t.Errorf("got %d want %d given, %v", got, want, numbers)
+		}
+	})
+}</code></pre>
+<p>ต่างกันแค่เปลี่ยน <code>[5]int</code> → <code>[]int</code> แต่ชีวิตดีขึ้นเยอะ:</p>
+<ul>
+<li>รับได้กี่ตัวก็ได้</li>
+<li>ฟังก์ชันเดียวใช้ได้กับทุกขนาด</li>
+<li>ใช้ <code>t.Run</code> ซ้อน subtest ได้ — เติม test case ใหม่โดยไม่แก้ signature</li>
+</ul>
+<h2>Slice คืออะไร — มองให้เห็นภาพ</h2>
+<p>Slice ไม่ใช่ array. มันเป็น &quot;หน้าต่าง&quot; ที่ชี้ไปยัง array อีกที:</p>
+<pre><code>slice header (บน stack):        backing array (บน heap):
+┌─────────────┐                 ┌───┬───┬───┬───┬───┐
+│ ptr ────────┼────────────────►│ 1 │ 2 │ 3 │ 4 │ 5 │
+│ len = 5     │                 └───┴───┴───┴───┴───┘
+│ cap = 5     │
+└─────────────┘</code></pre>
+<ul>
+<li><code>ptr</code> — ชี้ไปยังช่องแรกที่ slice &quot;มองเห็น&quot;</li>
+<li><code>len</code> — มองเห็นกี่ช่อง (<code>numbers[0..len)</code>)</li>
+<li><code>cap</code> — นับจาก ptr จนสุด array ที่รองรับ</li>
+</ul>
+<p>เวลา <code>numbers[1:3]</code> คุณแค่เลื่อน <code>ptr</code> กับปรับ <code>len</code> — ไม่ได้สร้าง array ใหม่. <strong>การ slice ไม่ได้ copy ข้อมูล</strong> แค่เปลี่ยนมุมมอง.</p>
+<h2>Append — ขยายตู้ได้ แต่มี trick</h2>
+<pre><code class="language-go">nums := []int{1, 2, 3}
+nums = append(nums, 4)</code></pre>
+<p>ถ้า backing array ยังเหลือที่ (<code>cap &gt; len</code>) → append ใส่ของลงช่องเดิม, ไม่มีการสร้าง array ใหม่.
+ถ้าเต็ม → Go จัดสรร array ใหม่ (ปกติใหญ่ขึ้น 2 เท่า) แล้ว <strong>copy ของเก่าลงไป</strong>.</p>
+<pre><code class="language-go">a := []int{1, 2, 3, 4}
+b := a[:2]   // b มองเห็น [1, 2] แต่ cap = 4
+b = append(b, 99)  // cap ยังเหลือ → แอบเขียนทับ a[2]!
+fmt.Println(a)     // [1 2 99 4]  ← surprise!</code></pre>
+<p>นี่คือ &quot;หลุม&quot; ที่โดนบ่อยที่สุด.</p>
+<h2>ทำไมต้องรู้เรื่องนี้</h2>
+<ul>
+<li><strong>90% ของเวลาที่ใช้ array ใน Go = ใช้ slice ไม่ใช่ array จริงๆ</strong> แม้แต่ <code>os.Args</code>, <code>strings.Split</code>, การ loop ด้วย <code>range</code> — ล้วนคืน slice</li>
+<li>รู้เรื่อง backing array ช่วยให้ debug เรื่อง &quot;ทำไมข้อมูลเปลี่ยนที่อื่นด้วย&quot; ได้</li>
+<li>ฟังก์ชันที่ &quot;รับข้อมูลชุด&quot; แทบทั้งหมดใน stdlib รับ slice ไม่ใช่ array — ออกแบบ API ของคุณให้สอดคล้อง</li>
+<li>เข้าใจ <code>len</code> vs <code>cap</code> ช่วยตัดสินใจเรื่อง performance: pre-allocate ด้วย <code>make([]int, 0, 1000)</code> แทน append ไปเรื่อย</li>
+</ul>
+<h2>หลุมที่เจอบ่อย</h2>
+<table>
+<thead>
+<tr>
+<th>อาการ</th>
+<th>สาเหตุ</th>
+<th>วิธีแก้</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>a</code> เปลี่ยนค่าทั้งที่แก้แค่ <code>b := a[1:3]</code></td>
+<td>slice แชร์ backing array</td>
+<td><code>b := append([]int(nil), a...)</code> หรือ <code>slices.Clone(a)</code></td>
+</tr>
+<tr>
+<td><code>append</code> แล้วของเก่าหาย</td>
+<td>reallocation, pointer เก่าชี้ array เก่า</td>
+<td>เก็บ <code>nums = append(nums, x)</code> กลับเข้าตัวแปรเดิมเสมอ</td>
+</tr>
+<tr>
+<td>เทียบ slice ด้วย <code>==</code> แล้วพัง</td>
+<td>slice เปรียบเทียบได้แค่กับ <code>nil</code></td>
+<td>ใช้ <code>slices.Equal(a, b)</code> (Go 1.21+)</td>
+</tr>
+<tr>
+<td>ใส่ของเยอะๆ แล้วช้า</td>
+<td>append เจอ realloc บ่อย</td>
+<td><code>make([]T, 0, expectedSize)</code> ตั้งแต่แรก</td>
+</tr>
+<tr>
+<td>แก้ element ใน loop แล้วไม่เห็นผล</td>
+<td><code>for _, v := range s</code> copy ค่า ไม่ใช่ ref</td>
+<td><code>for i := range s { s[i] = ... }</code></td>
+</tr>
+</tbody></table>
+<h2>สรุป</h2>
+<ul>
+<li><strong>Array</strong> = กล่องขนาดตายตัว, แทบไม่ได้ใช้ตรงๆ ใน Go</li>
+<li><strong>Slice</strong> = header 3 ค่า (ptr, len, cap) ที่ชี้ไป array — ใช้แทน array เกือบทุกกรณี</li>
+<li><code>append</code> อาจจะ reallocate — ต้อง assign กลับเสมอ</li>
+<li>Slice แชร์ backing array → ระวัง side effect ข้าม slice</li>
+</ul>
+<h2>ลองทำต่อ</h2>
+<ol>
+<li>เขียน <code>SumAll([]int, []int) []int</code> คืน slice ของผลรวมแต่ละชุด — ใช้ <code>append</code> ใน loop</li>
+<li>เขียน <code>SumAllTails(...[]int) []int</code> คืนผลรวม &quot;ทุกตัวยกเว้นตัวแรก&quot; — ต้องระวัง empty slice (hint: <code>nil</code> กับ <code>[]int{}</code> ต่างกัน)</li>
+<li>เขียน benchmark ด้วย <code>func BenchmarkSum(b *testing.B)</code> เทียบ <code>make([]int, 0, 1000)</code> กับ append เปล่าๆ — cap เริ่มต้นต่างกันเท่าไหร่ถึงเห็นชัด?</li>
+</ol>
+<p>ดูเฉลยได้ที่ <code>arrays_n_slices/</code> ใน repo.</p>
+<hr>
+<p><strong>เกี่ยวข้อง:</strong> <a href="./helloworld.html">Hello, World — เริ่มต้นด้วยการทักทาย</a> · <strong>อัปเดตล่าสุด:</strong> 2026-06-11</p>
+
+  
+    </main>
+    <footer class="site">
+      <span>สรุปแบบ storytelling — ภาษาไทย</span>
+      <span>build: <a href="https://github.com/anucha-tk/learn-go-with-tests">source</a></span>
+    </footer>
+  </div>
+</body>
+</html>
