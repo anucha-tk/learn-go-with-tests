@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สรุป: Structs, Methods &amp; Interfaces ใน Go</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #e2e8f0;
+            --primary: #38bdf8;
+            --secondary: #94a3b8;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --code-bg: #0b0f19;
+            --quote-border: #0ea5e9;
+            --accent: #f43f5e;
+            --highlight: #22c55e;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            margin: 0;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 1.75rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h2::before {
+            content: "⚡";
+            font-size: 1.25rem;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: #cbd5e1;
+        }
+
+        blockquote {
+            border-left: 4px solid var(--quote-border);
+            background: rgba(14, 165, 233, 0.1);
+            margin: 1.5rem 0;
+            padding: 1rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            color: #93c5fd;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            margin: 1.5rem 0;
+        }
+
+        code {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: #38bdf8;
+        }
+
+        pre code {
+            color: #f8fafc;
+        }
+
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .meta-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--secondary);
+            margin-bottom: 2rem;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .meta-badge {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--secondary);
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="meta-info">
+            <span class="meta-badge"><strong>Slug:</strong> structs-methods-interfaces</span>
+            <span class="meta-badge"><strong>Order:</strong> 3</span>
+            <span class="meta-badge"><strong>Tags:</strong> Go, Structs, Methods, Interfaces</span>
+            <span class="meta-badge"><strong>อัปเดต:</strong> 2026-06-11</span>
+        </div>
+
+        <h1>Structs, Methods &amp; Interfaces</h1>
+
+        <blockquote>
+            เรียนรู้วิธีการออกแบบประเภทข้อมูล (Types) ของเราเองในภาษา Go เพื่อซ่อนความซับซ้อนและเขียนโค้ดที่ยืดหยุ่นด้วย Interfaces ผ่านกระบวนการ TDD
+        </blockquote>
+
+        <h2>เรื่องของเรา</h2>
+        <p>
+            สมมติว่าเราต้องการเขียนโปรแกรมทางเรขาคณิตเพื่อคำนวณหาเส้นรอบวง (Perimeter) และพื้นที่ (Area) ของรูปทรงต่าง ๆ ใน Go เราอาจเริ่มต้นด้วยการสร้างฟังก์ชันทั่วไปที่รับค่าดิบ เช่น <code>float64</code> แต่เมื่อโปรแกรมโตขึ้น การส่งผ่านค่าดิบเหล่านี้ทำให้โค้ดสับสนและขาดความชัดเจนทางโครงสร้าง
+        </p>
+
+        <h2>ปัญหาแรกที่เจอ</h2>
+        <p>
+            เมื่อเราต้องการคำนวณพื้นที่ของวงกลม (Circle) เพิ่มเติมจากสี่เหลี่ยมผืนผ้า (Rectangle) การใช้ฟังก์ชันทั่วไปแบบปกติจะพบข้อจำกัด เพราะใน Go ไม่สามารถประกาศฟังก์ชันชื่อเดียวกันซ้ำใน package เดียวกันได้ (ไม่มีฟังก์ชันโอเวอร์โหลดเหมือนบางภาษา) ทำให้เราต้องคิดวิธีอื่นในการจัดการกับพฤติกรรม (Behavior) ที่ใช้ชื่อซ้ำกันนี้
+        </p>
+
+        <h2>ก่อนแก้ — แบบ naive</h2>
+        <p>
+            โค้ดเริ่มต้นที่ใช้ฟังก์ชันอิสระและรับตัวแปรดิบสำหรับคำนวณสี่เหลี่ยมผืนผ้า:
+        </p>
+        <pre><code class="language-go">func Perimeter(width float64, height float64) float64 {
+    return 2 * (width + height)
+}
+
+func Area(width float64, height float64) float64 {
+    return width * height
+}</code></pre>
+
+        <h2>หลังแก้ — แบบ idiomatic</h2>
+        <p>
+            ประกาศโครงสร้างข้อมูลด้วย <code>struct</code> และเปลี่ยนมาใช้ <code>method</code> ที่ผูกติดอยู่กับโครงสร้างข้อมูลนั้น ๆ พร้อมกับใช้ <code>interface</code> เพื่อทำให้เขียนโค้ดรองรับรูปทรงใด ๆ ก็ได้ที่มีเมธอดที่กำหนด:
+        </p>
+        <pre><code class="language-go">package shapes
+
+import "math"
+
+// Shape กำหนดพฤติกรรมร่วมกัน
+type Shape interface {
+    Area() float64
+}
+
+// Rectangle สำหรับสี่เหลี่ยมผืนผ้า
+type Rectangle struct {
+    Width  float64
+    Height float64
+}
+
+// Area ของ Rectangle
+func (r Rectangle) Area() float64 {
+    return r.Width * r.Height
+}
+
+// Circle สำหรับวงกลม
+type Circle struct {
+    Radius float64
+}
+
+// Area ของ Circle
+func (c Circle) Area() float64 {
+    return math.Pi * c.Radius * c.Radius
+}</code></pre>
+
+        <h2>ทำไมต้องรู้เรื่องนี้</h2>
+        <ul>
+            <li><strong>การจัดกลุ่มข้อมูล (Encapsulation):</strong> การใช้ <code>struct</code> ช่วยรวบรวมฟิลด์ที่เกี่ยวข้องกันและเพิ่มความชัดเจนให้กับเจตนาของโค้ด</li>
+            <li><strong>การลดความผูกมัด (Decoupling):</strong> ใน Go การอ้างอิง interface เป็นแบบ <em>implicit</em> (ไม่ต้องการคีย์เวิร์ด implement) ขอเพียงแค่ Type นั้นมีเมธอดตรงตามรูปแบบ Interface ก็ผ่านการตรวจสอบประเภทข้อมูลทันที</li>
+            <li><strong>ความสะดวกในการทดสอบ (Table-driven tests):</strong> การรวมเคสทดสอบด้วย interface ร่วมกับสไลซ์ของสตรักเจอร์นิรนาม ช่วยให้ขยายเคสทดสอบได้รวดเร็วและเป็นระบบ</li>
+        </ul>
+
+        <h2>หลุมที่เจอบ่อย</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>อาการ</th>
+                    <th>สาเหตุ</th>
+                    <th>วิธีแก้</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>Type does not implement Interface (missing Area method)</code></td>
+                    <td>โครงสร้างข้อมูลไม่มีเมธอดนั้น หรือลายเซ็น/ประเภทตัวแปรไม่ตรงกัน</td>
+                    <td>ตรวจสอบชื่อและลายเซ็นของเมธอดให้ตรงกับอินเตอร์เฟสอย่างถูกต้อง</td>
+                </tr>
+                <tr>
+                    <td>เทสเฟลโดยระบุจุดผิดพลาดยากใน Table-driven tests</td>
+                    <td>ไม่ได้ใช้การรันแบบระบุชื่อย่อย (Sub-tests)</td>
+                    <td>ครอบแต่ละเคสด้วย <code>t.Run(name, ...)</code> และจัดรูปแบบข้อความด้วย <code>%#v</code> เพื่อให้รู้จุดผิดพลาดชัดเจน</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>สรุป</h2>
+        <ul>
+            <li><code>struct</code> ใช้ประกาศชนิดข้อมูลขึ้นมาใหม่โดยรวมฟิลด์ต่าง ๆ ไว้ด้วยกัน</li>
+            <li><code>method</code> คือฟังก์ชันพิเศษที่มี Receiver เชื่อมโยงกับประเภทข้อมูล</li>
+            <li><code>interface</code> กำหนดเซตของเมธอดที่จำเป็น ทำให้เขียนโค้ดที่ยืดหยุ่นและลดการยึดติดของโค้ด (Decoupling)</li>
+            <li>Table-driven tests ช่วยให้เทสเคสครอบคลุมและบำรุงรักษาง่าย</li>
+        </ul>
+
+        <h2>ลองทำต่อ</h2>
+        <ul>
+            <li>ลองประกาศสตรักเจอร์ <code>Triangle</code> สำหรับสามเหลี่ยม แล้วเขียนเมธอด <code>Area()</code> เพื่อเพิ่มเข้าไปใน Table-driven tests</li>
+        </ul>
+
+        <div class="footer">
+            <p><strong>เกี่ยวข้อง:</strong> <a href="#">pointers-and-errors</a> · <strong>อัปเดตล่าสุด:</strong> 2026-06-11</p>
+        </div>
+    </div>
+</body>
+</html>
